@@ -19,8 +19,8 @@ func InitializeDatabase() *gorm.DB {
 	}
 
 	if err := db.AutoMigrate(&domains.TaxDeductionConfig{}); err != nil {
-        log.Fatalf("Failed to migrate database: %v", err)
-    }
+		log.Fatalf("Failed to migrate database: %v", err)
+	}
 
 	if err := ensureDefaultConfigExists(db); err != nil {
 		log.Fatalf("Failed to initialize default configuration: %v", err)
@@ -33,19 +33,19 @@ func InitializeDatabase() *gorm.DB {
 func ensureDefaultConfigExists(db *gorm.DB) error {
 	var count int64
 	if err := db.Model(&domains.TaxDeductionConfig{}).Count(&count).Error; err != nil {
-		return err  
+		return err
 	}
 	if count == 0 {
 		defaultConfig := domains.TaxDeductionConfig{
-			ConfigName: "MainConfig",
-			PersonalDeduction: 60000,
+			ConfigName:           "MainConfig",
+			PersonalDeduction:    60000,
 			KReceiptDeductionMax: 50000,
 			DonationDeductionMax: 100000,
 		}
 		if err := db.Create(&defaultConfig).Error; err != nil {
-			return err 
+			return err
 		}
 		log.Println("Main tax deduction configuration has been initialized.")
 	}
-	return nil  
+	return nil
 }

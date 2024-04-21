@@ -20,7 +20,7 @@ import (
 )
 
 func main() {
-	
+
 	// Load configuration
 	cfg := config.GetConfig()
 
@@ -40,7 +40,7 @@ func main() {
 	adminController := controllers.NewAdminController(adminService)
 
 	// Setup the router with routes
-	endpoints.NewRouter(e, adminController)
+	endpoints.NewRouter(e, adminController, cfg)
 
 	port := cfg.Port
 	if port == "" {
