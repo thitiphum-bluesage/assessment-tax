@@ -7,7 +7,7 @@ import (
 var Validate = validator.New()
 
 type UpdatePersonalDeductionRequest struct {
-    Amount float64 `json:"amount" validate:"required,gte=10000,lte=100000"`
+	Amount float64 `json:"amount" validate:"required,gte=10000,lte=100000"`
 }
 
 type UpdatePersonalDeductionResponse struct {

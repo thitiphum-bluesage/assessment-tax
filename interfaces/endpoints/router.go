@@ -15,7 +15,6 @@ func NewRouter(e *echo.Echo, adminController *controllers.AdminController, cfg *
 		return c.String(http.StatusOK, "Hello, Go Bootcamp!")
 	})
 
-
 	adminGroup := e.Group("/admin")
 	adminGroup.Use(middleware.BasicAuth(cfg))
 

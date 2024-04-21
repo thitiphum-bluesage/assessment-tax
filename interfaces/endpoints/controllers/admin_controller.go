@@ -9,31 +9,31 @@ import (
 )
 
 type AdminController struct {
-    service *services.AdminService
+	service *services.AdminService
 }
 
 func NewAdminController(service *services.AdminService) *AdminController {
-    return &AdminController{
-        service: service,
-    }
+	return &AdminController{
+		service: service,
+	}
 }
 
 func (ac *AdminController) UpdatePersonalDeduction(c echo.Context) error {
-    var req schemas.UpdatePersonalDeductionRequest
-    if err := c.Bind(&req); err != nil {
-        return echo.NewHTTPError(http.StatusBadRequest, "Invalid input data")
-    }
+	var req schemas.UpdatePersonalDeductionRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid input data")
+	}
 
-    if err := schemas.Validate.Struct(req); err != nil {
-        // Return validation errors
-        return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-    }
+	if err := schemas.Validate.Struct(req); err != nil {
+		// Return validation errors
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 
-    if err := ac.service.UpdatePersonalDeduction(req.Amount); err != nil {
-        return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-    }
+	if err := ac.service.UpdatePersonalDeduction(req.Amount); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 
-    return c.JSON(http.StatusOK, schemas.UpdatePersonalDeductionResponse{
-        PersonalDeduction: req.Amount,
-    })
+	return c.JSON(http.StatusOK, schemas.UpdatePersonalDeductionResponse{
+		PersonalDeduction: req.Amount,
+	})
 }
