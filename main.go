@@ -1,9 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/thitiphum-bluesage/assessment-tax/config"
@@ -11,7 +16,7 @@ import (
 )
 
 func main() {
-
+	
 	// Load configuration
 	cfg := config.GetConfig()
 
@@ -29,5 +34,32 @@ func main() {
 	if port == "" {
 		log.Fatal("PORT environment variable not set")
 	}
-	e.Logger.Fatal(e.Start(":" + port))
+
+	// Set up Graceful Shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		if err := e.Start(":" + port); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("shutting down the server: %v", err)
+		}
+	}()
+
+	// Block until a signal is received
+	<-quit
+
+	handleGracefulShutdown(e)
+}
+
+func handleGracefulShutdown(e *echo.Echo) {
+	// Create a deadline to wait for.
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Attempt to shut down the server gracefully
+	if err := e.Shutdown(ctx); err != nil {
+		log.Fatalf("Failed to gracefully shut down the server: %v", err)
+	}
+
+	log.Println("Server shut down gracefully")
 }
