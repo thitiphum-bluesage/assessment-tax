@@ -9,10 +9,10 @@ import (
 )
 
 type AdminController struct {
-	service *services.AdminService
+	service services.AdminServiceInterface
 }
 
-func NewAdminController(service *services.AdminService) *AdminController {
+func NewAdminController(service services.AdminServiceInterface) *AdminController {
 	return &AdminController{
 		service: service,
 	}
