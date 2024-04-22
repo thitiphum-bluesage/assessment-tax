@@ -11,12 +11,16 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/thitiphum-bluesage/assessment-tax/applications/services"
 	"github.com/thitiphum-bluesage/assessment-tax/config"
 	"github.com/thitiphum-bluesage/assessment-tax/infrastructure"
+	"github.com/thitiphum-bluesage/assessment-tax/infrastructure/repository"
+	"github.com/thitiphum-bluesage/assessment-tax/interfaces/endpoints"
+	"github.com/thitiphum-bluesage/assessment-tax/interfaces/endpoints/controllers"
 )
 
 func main() {
-	
+
 	// Load configuration
 	cfg := config.GetConfig()
 
@@ -26,9 +30,17 @@ func main() {
 
 	e := echo.New()
 
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, Go Bootcamp!")
-	})
+	// Repository layer
+	taxRepo := repository.NewTaxDeductionConfigRepository(db)
+
+	// Service layer
+	adminService := services.NewAdminService(taxRepo)
+
+	// Controller layer
+	adminController := controllers.NewAdminController(adminService)
+
+	// Setup the router with routes
+	endpoints.NewRouter(e, adminController, cfg)
 
 	port := cfg.Port
 	if port == "" {
