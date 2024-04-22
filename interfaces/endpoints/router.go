@@ -19,4 +19,5 @@ func NewRouter(e *echo.Echo, adminController *controllers.AdminController, cfg *
 	adminGroup.Use(middleware.BasicAuth(cfg))
 
 	adminGroup.POST("/deductions/personal", adminController.UpdatePersonalDeduction)
+	adminGroup.POST("/deductions/k-receipt", adminController.UpdateKReceiptDeduction)
 }

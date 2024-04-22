@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/thitiphum-bluesage/assessment-tax/applications/services"
 	"github.com/thitiphum-bluesage/assessment-tax/interfaces/schemas"
+	"github.com/thitiphum-bluesage/assessment-tax/utilities"
 )
 
 type AdminController struct {
@@ -24,9 +25,9 @@ func (ac *AdminController) UpdatePersonalDeduction(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid input data")
 	}
 
-	if err := schemas.Validate.Struct(req); err != nil {
-		// Return validation errors
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	if err := c.Validate(&req); err != nil {
+		formattedError := utilities.FormatValidationError(err)
+		return echo.NewHTTPError(http.StatusBadRequest, formattedError)
 	}
 
 	if err := ac.service.UpdatePersonalDeduction(req.Amount); err != nil {
@@ -36,4 +37,22 @@ func (ac *AdminController) UpdatePersonalDeduction(c echo.Context) error {
 	return c.JSON(http.StatusOK, schemas.UpdatePersonalDeductionResponse{
 		PersonalDeduction: req.Amount,
 	})
+}
+
+func (ac *AdminController) UpdateKReceiptDeduction(c echo.Context) error {
+	var req schemas.UpdateKReceiptRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid input data")
+	}
+
+	if err := c.Validate(&req); err != nil {
+		formattedError := utilities.FormatValidationError(err)
+		return echo.NewHTTPError(http.StatusBadRequest, formattedError)
+	}
+
+	if err := ac.service.UpdateKReceiptDeductionMax(req.Amount); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, schemas.UpdateKReceiptResponse{KReceipt: req.Amount})
 }
