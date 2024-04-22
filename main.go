@@ -17,6 +17,7 @@ import (
 	"github.com/thitiphum-bluesage/assessment-tax/infrastructure/repository"
 	"github.com/thitiphum-bluesage/assessment-tax/interfaces/endpoints"
 	"github.com/thitiphum-bluesage/assessment-tax/interfaces/endpoints/controllers"
+	"github.com/thitiphum-bluesage/assessment-tax/utilities"
 )
 
 func main() {
@@ -29,6 +30,7 @@ func main() {
 	fmt.Println(db)
 
 	e := echo.New()
+	e.Validator = utilities.NewValidator()
 
 	// Repository layer
 	taxRepo := repository.NewTaxDeductionConfigRepository(db)

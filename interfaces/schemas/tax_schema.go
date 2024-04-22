@@ -13,3 +13,11 @@ type UpdatePersonalDeductionRequest struct {
 type UpdatePersonalDeductionResponse struct {
 	PersonalDeduction float64 `json:"personalDeduction"`
 }
+
+type UpdateKReceiptRequest struct {
+	Amount float64 `json:"amount" validate:"required,gte=1,lte=100000"`
+}
+
+type UpdateKReceiptResponse struct {
+	KReceipt float64 `json:"kReceipt"`
+}
