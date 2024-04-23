@@ -17,20 +17,28 @@ func NewTaxService(taxRepo repository.TaxDeductionConfigRepositoryInterface) Tax
 	}
 }
 
-func (s *taxService) CalculateTax(income float64, wht float64, allowances []schemas.Allowance) (float64, error) {
+func (s *taxService) CalculateTax(income float64, wht float64, allowances []schemas.Allowance) (float64, float64, error) {
 	config, err := s.taxRepo.GetConfig()
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
 	incomeAfterDuduct := income - config.PersonalDeduction
 	if incomeAfterDuduct < 0 {
-		return 0, nil
+		return 0, 0, nil
 	}
 
 	tax := calulateProgressiveTax(incomeAfterDuduct)
 
-	return tax, nil
+	netTax := tax - wht
+	taxRefund := 0.0
+
+	if netTax < 0 {
+		taxRefund = -netTax // Calculate refund as the negative of a negative tax value
+		netTax = 0
+	}
+
+	return netTax, taxRefund, nil
 }
 
 func calulateProgressiveTax(incomeAfterDuduct float64) float64 {

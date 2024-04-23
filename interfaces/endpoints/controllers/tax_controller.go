@@ -29,13 +29,20 @@ func (tc *TaxController) CalculateTax(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	tax, err := tc.taxService.CalculateTax(*req.TotalIncome, *req.WHT, req.Allowances)
+	netTax, taxRefund, err := tc.taxService.CalculateTax(*req.TotalIncome, *req.WHT, req.Allowances)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
+	if taxRefund > 0 {
+		response := schemas.TaxCalculationRefundResponse{
+			TaxRefund: taxRefund,
+		}
+		return c.JSON(http.StatusOK, response)
+	}
+
 	response := schemas.TaxCalculationResponse{
-		Tax: tax,
+		Tax: netTax,
 	}
 	return c.JSON(http.StatusOK, response)
 }
