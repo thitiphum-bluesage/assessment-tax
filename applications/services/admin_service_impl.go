@@ -7,10 +7,10 @@ import (
 )
 
 type adminService struct {
-	taxRepo repository.TaxDeductionConfigRepository
+	taxRepo repository.TaxDeductionConfigRepositoryInterface
 }
 
-func NewAdminService(taxRepo repository.TaxDeductionConfigRepository) AdminServiceInterface {
+func NewAdminService(taxRepo repository.TaxDeductionConfigRepositoryInterface) AdminServiceInterface {
 	return &adminService{
 		taxRepo: taxRepo,
 	}

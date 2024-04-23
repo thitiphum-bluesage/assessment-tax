@@ -17,7 +17,6 @@ import (
 	"github.com/thitiphum-bluesage/assessment-tax/infrastructure/repository"
 	"github.com/thitiphum-bluesage/assessment-tax/interfaces/endpoints"
 	"github.com/thitiphum-bluesage/assessment-tax/interfaces/endpoints/controllers"
-	"github.com/thitiphum-bluesage/assessment-tax/utilities"
 )
 
 func main() {
@@ -30,19 +29,20 @@ func main() {
 	fmt.Println(db)
 
 	e := echo.New()
-	e.Validator = utilities.NewValidator()
 
 	// Repository layer
 	taxRepo := repository.NewTaxDeductionConfigRepository(db)
 
 	// Service layer
 	adminService := services.NewAdminService(taxRepo)
+	taxService := services.NewTaxService(taxRepo)
 
 	// Controller layer
 	adminController := controllers.NewAdminController(adminService)
+	taxController := controllers.NewTaxController(taxService)
 
 	// Setup the router with routes
-	endpoints.NewRouter(e, adminController, cfg)
+	endpoints.NewRouter(e, taxController, adminController, cfg)
 
 	port := cfg.Port
 	if port == "" {

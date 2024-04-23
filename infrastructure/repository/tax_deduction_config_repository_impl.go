@@ -9,7 +9,7 @@ type taxDeductionConfigRepository struct {
 	db *gorm.DB
 }
 
-func NewTaxDeductionConfigRepository(db *gorm.DB) TaxDeductionConfigRepository {
+func NewTaxDeductionConfigRepository(db *gorm.DB) TaxDeductionConfigRepositoryInterface {
 	return &taxDeductionConfigRepository{db: db}
 }
 
