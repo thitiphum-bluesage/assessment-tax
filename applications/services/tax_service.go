@@ -5,5 +5,5 @@ import (
 )
 
 type TaxServiceInterface interface {
-	CalculateTax(income float64, wht float64, allowances []schemas.Allowance) (float64, error)
+	CalculateTax(income float64, wht float64, allowances []schemas.Allowance) (float64, float64, error)
 }

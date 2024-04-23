@@ -30,3 +30,7 @@ type TaxCalculationRequest struct {
 type TaxCalculationResponse struct {
 	Tax float64 `json:"tax"`
 }
+
+type TaxCalculationRefundResponse struct {
+	TaxRefund float64 `json:"taxRefund"`
+}
