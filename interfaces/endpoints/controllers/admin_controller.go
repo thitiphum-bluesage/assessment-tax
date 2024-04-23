@@ -25,17 +25,16 @@ func (ac *AdminController) UpdatePersonalDeduction(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid input data")
 	}
 
-	if err := c.Validate(&req); err != nil {
-		formattedError := utilities.FormatValidationError(err)
-		return echo.NewHTTPError(http.StatusBadRequest, formattedError)
+	if err := utilities.ValidateUpdatePersonalDeductionRequest(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if err := ac.service.UpdatePersonalDeduction(req.Amount); err != nil {
+	if err := ac.service.UpdatePersonalDeduction(*req.Amount); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, schemas.UpdatePersonalDeductionResponse{
-		PersonalDeduction: req.Amount,
+		PersonalDeduction: *req.Amount,
 	})
 }
 
@@ -45,14 +44,13 @@ func (ac *AdminController) UpdateKReceiptDeduction(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid input data")
 	}
 
-	if err := c.Validate(&req); err != nil {
-		formattedError := utilities.FormatValidationError(err)
-		return echo.NewHTTPError(http.StatusBadRequest, formattedError)
+	if err := utilities.ValidateUpdateKReceiptRequest(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if err := ac.service.UpdateKReceiptDeductionMax(req.Amount); err != nil {
+	if err := ac.service.UpdateKReceiptDeductionMax(*req.Amount); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, schemas.UpdateKReceiptResponse{KReceipt: req.Amount})
+	return c.JSON(http.StatusOK, schemas.UpdateKReceiptResponse{KReceipt: *req.Amount})
 }

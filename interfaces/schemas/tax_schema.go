@@ -1,13 +1,7 @@
 package schemas
 
-import (
-	"github.com/go-playground/validator/v10"
-)
-
-var Validate = validator.New()
-
 type UpdatePersonalDeductionRequest struct {
-	Amount float64 `json:"amount" validate:"required,gte=10000,lte=100000"`
+	Amount *float64 `json:"amount"`
 }
 
 type UpdatePersonalDeductionResponse struct {
@@ -15,9 +9,24 @@ type UpdatePersonalDeductionResponse struct {
 }
 
 type UpdateKReceiptRequest struct {
-	Amount float64 `json:"amount" validate:"required,gte=1,lte=100000"`
+	Amount *float64 `json:"amount" `
 }
 
 type UpdateKReceiptResponse struct {
 	KReceipt float64 `json:"kReceipt"`
+}
+
+type Allowance struct {
+	AllowanceType string  `json:"allowanceType" `
+	Amount        float64 `json:"amount" `
+}
+
+type TaxCalculationRequest struct {
+	TotalIncome *float64    `json:"totalIncome" `
+	WHT         *float64    `json:"wht" `
+	Allowances  []Allowance `json:"allowances" `
+}
+
+type TaxCalculationResponse struct {
+	Tax float64 `json:"tax"`
 }
