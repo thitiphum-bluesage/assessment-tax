@@ -43,16 +43,22 @@ func ValidateTaxCalculationRequest(req *schemas.TaxCalculationRequest) error {
 		errs = append(errs, "WHT cannot be greater than TotalIncome")
 	}
 
-	if len(req.Allowances) == 0 {
-		errs = append(errs, "At least one allowance must be provided")
-	}
+	// Uncomment to not allow blank allowances
+	// if len(req.Allowances) == 0 {
+	// 	errs = append(errs, "At least one allowance must be provided")
+	// }
 
+	allowanceCounts := map[string]int{}
 	for _, allowance := range req.Allowances {
 		if allowance.AllowanceType != "donation" && allowance.AllowanceType != "k-receipt" {
 			errs = append(errs, fmt.Sprintf("Invalid allowance type: %s. Allowed types are 'donation' and 'k-receipt'.", allowance.AllowanceType))
 		}
 		if allowance.Amount < 0 {
 			errs = append(errs, fmt.Sprintf("Amount for %s must be non-negative", allowance.AllowanceType))
+		}
+		allowanceCounts[allowance.AllowanceType]++
+		if allowanceCounts[allowance.AllowanceType] > 1 {
+			errs = append(errs, fmt.Sprintf("Only one %s allowance can be included", allowance.AllowanceType))
 		}
 	}
 

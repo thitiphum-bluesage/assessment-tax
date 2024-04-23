@@ -23,16 +23,26 @@ func (s *taxService) CalculateTax(income float64, wht float64, allowances []sche
 		return 0, 0, err
 	}
 
-	incomeAfterDuduct := income - config.PersonalDeduction
-	if incomeAfterDuduct < 0 {
+	allowancesDeduction := 0.0
+	for _, allowance := range allowances {
+		if allowance.AllowanceType == "donation" {
+			if allowance.Amount > config.DonationDeductionMax {
+				allowancesDeduction += config.DonationDeductionMax
+			} else {
+				allowancesDeduction += allowance.Amount
+			}
+		}
+	}
+
+	incomeAfterDeduct := income - config.PersonalDeduction - allowancesDeduction
+	if incomeAfterDeduct < 0 {
 		return 0, 0, nil
 	}
 
-	tax := calulateProgressiveTax(incomeAfterDuduct)
+	tax := calculateProgressiveTax(incomeAfterDeduct)
 
 	netTax := tax - wht
 	taxRefund := 0.0
-
 	if netTax < 0 {
 		taxRefund = -netTax // Calculate refund as the negative of a negative tax value
 		netTax = 0
@@ -41,7 +51,7 @@ func (s *taxService) CalculateTax(income float64, wht float64, allowances []sche
 	return netTax, taxRefund, nil
 }
 
-func calulateProgressiveTax(incomeAfterDuduct float64) float64 {
+func calculateProgressiveTax(income float64) float64 {
 	brackets := []struct {
 		UpperBound float64
 		TaxRate    float64
@@ -57,12 +67,12 @@ func calulateProgressiveTax(incomeAfterDuduct float64) float64 {
 	previousUpperBound := 0.0
 
 	for _, bracket := range brackets {
-		if incomeAfterDuduct > bracket.UpperBound {
+		if income > bracket.UpperBound {
 			tax += (bracket.UpperBound - previousUpperBound) * bracket.TaxRate
 			previousUpperBound = bracket.UpperBound
 			continue
 		}
-		tax += (incomeAfterDuduct - previousUpperBound) * bracket.TaxRate
+		tax += (income - previousUpperBound) * bracket.TaxRate
 		break
 	}
 	return tax
