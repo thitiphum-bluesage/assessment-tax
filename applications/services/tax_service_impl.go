@@ -5,6 +5,7 @@ import (
 
 	"github.com/thitiphum-bluesage/assessment-tax/infrastructure/repository"
 	"github.com/thitiphum-bluesage/assessment-tax/interfaces/schemas"
+	"github.com/thitiphum-bluesage/assessment-tax/utilities"
 )
 
 type taxService struct {
@@ -23,7 +24,7 @@ func (s *taxService) CalculateTax(income float64, wht float64, allowances []sche
 		return 0, 0, err
 	}
 
-	allowancesDeduction := 0.0
+	allowancesDeduction := config.PersonalDeduction
 	for _, allowance := range allowances {
 		if allowance.AllowanceType == "donation" {
 			if allowance.Amount > config.DonationDeductionMax {
@@ -31,10 +32,16 @@ func (s *taxService) CalculateTax(income float64, wht float64, allowances []sche
 			} else {
 				allowancesDeduction += allowance.Amount
 			}
+		} else {
+			if allowance.Amount > config.KReceiptDeductionMax {
+				allowancesDeduction += config.KReceiptDeductionMax
+			} else {
+				allowancesDeduction += allowance.Amount
+			}
 		}
 	}
 
-	incomeAfterDeduct := income - config.PersonalDeduction - allowancesDeduction
+	incomeAfterDeduct := income - allowancesDeduction
 	if incomeAfterDeduct < 0 {
 		incomeAfterDeduct = 0
 	}
@@ -58,23 +65,27 @@ func calculateProgressiveTax(income float64) float64 {
 
 	for _, bracket := range brackets {
 		if income > bracket.UpperBound {
-			tax += (bracket.UpperBound - previousUpperBound) * bracket.TaxRate
+			taxAmount := (bracket.UpperBound - previousUpperBound) * bracket.TaxRate
+			taxAmount = utilities.FormatToTwoDecimals(taxAmount)
+			tax += taxAmount
 			previousUpperBound = bracket.UpperBound
 			continue
 		}
-		tax += (income - previousUpperBound) * bracket.TaxRate
+		taxAmount := (income - previousUpperBound) * bracket.TaxRate
+		taxAmount = utilities.FormatToTwoDecimals(taxAmount)
+		tax += taxAmount
 		break
 	}
 	return tax
 }
 
 func (s *taxService) CalculateDetailedTax(income, wht float64, allowances []schemas.Allowance) ([]schemas.TaxLevel, float64, float64, error) {
-    config, err := s.taxRepo.GetConfig()
+	config, err := s.taxRepo.GetConfig()
 	if err != nil {
 		return nil, 0, 0, err
 	}
 
-	allowancesDeduction := 0.0
+	allowancesDeduction := config.PersonalDeduction
 	for _, allowance := range allowances {
 		if allowance.AllowanceType == "donation" {
 			if allowance.Amount > config.DonationDeductionMax {
@@ -82,69 +93,78 @@ func (s *taxService) CalculateDetailedTax(income, wht float64, allowances []sche
 			} else {
 				allowancesDeduction += allowance.Amount
 			}
+		} else {
+			if allowance.Amount > config.KReceiptDeductionMax {
+				allowancesDeduction += config.KReceiptDeductionMax
+			} else {
+				allowancesDeduction += allowance.Amount
+			}
 		}
 	}
 
-	incomeAfterDeduct := income - config.PersonalDeduction - allowancesDeduction
+	incomeAfterDeduct := income - allowancesDeduction
 	if incomeAfterDeduct < 0 {
 		incomeAfterDeduct = 0
 	}
 
-    taxLevels, tax := calculateProgressiveTaxWithDetails(incomeAfterDeduct)
+	taxLevels, tax := calculateProgressiveTaxWithDetails(incomeAfterDeduct)
 
-    netTax := tax - wht
-    taxRefund := 0.0
+	netTax := tax - wht
+	taxRefund := 0.0
 	if netTax < 0 {
 		taxRefund = -netTax // Calculate refund as the negative of a negative tax value
 		netTax = 0
 	}
 
-    return taxLevels, netTax, taxRefund, nil
+	return taxLevels, netTax, taxRefund, nil
 
 }
 
 func calculateProgressiveTaxWithDetails(income float64) ([]schemas.TaxLevel, float64) {
-    brackets := getTaxBrackets()
+	brackets := getTaxBrackets()
 
-    detailResponse := []schemas.TaxLevel{
-        {Level: "0-150,000", Tax: 0.0},
-        {Level: "150,001-500,000", Tax: 0.0},
-        {Level: "500,001-1,000,000", Tax: 0.0},
-        {Level: "1,000,001-2,000,000", Tax: 0.0},
-        {Level: "2,000,001 ขึ้นไป", Tax: 0.0},
-    }
+	detailResponse := []schemas.TaxLevel{
+		{Level: "0-150,000", Tax: 0.0},
+		{Level: "150,001-500,000", Tax: 0.0},
+		{Level: "500,001-1,000,000", Tax: 0.0},
+		{Level: "1,000,001-2,000,000", Tax: 0.0},
+		{Level: "2,000,001 ขึ้นไป", Tax: 0.0},
+	}
 
-    tax := 0.0
+	tax := 0.0
 	previousUpperBound := 0.0
 
-    for i, bracket := range brackets {
+	for i, bracket := range brackets {
 		if income > bracket.UpperBound {
-            taxAmount := (bracket.UpperBound - previousUpperBound) * bracket.TaxRate
+			taxAmount := (bracket.UpperBound - previousUpperBound) * bracket.TaxRate
+			taxAmount = utilities.FormatToTwoDecimals(taxAmount)
 			tax += taxAmount
 			previousUpperBound = bracket.UpperBound
-            detailResponse[i].Tax = taxAmount
+			detailResponse[i].Tax = taxAmount
 			continue
 		}
-		tax += (income - previousUpperBound) * bracket.TaxRate
-        detailResponse[i].Tax = (income - previousUpperBound) * bracket.TaxRate
+		taxAmount := (income - previousUpperBound) * bracket.TaxRate
+		taxAmount = utilities.FormatToTwoDecimals(taxAmount)
+		tax += taxAmount
+		detailResponse[i].Tax = taxAmount
 		break
 	}
 
-    return detailResponse, tax
+	return detailResponse, tax
 }
 
-func getTaxBrackets() ([]struct {
-    UpperBound float64
-    TaxRate    float64
-}) {
-    return []struct {
-        UpperBound float64
-        TaxRate    float64
-    }{
-        {150000, 0},
-        {500000, 0.1},
-        {1000000, 0.15},
-        {2000000, 0.2},
-        {math.MaxFloat64, 0.35},
-    }
+func getTaxBrackets() []struct {
+	UpperBound float64
+	TaxRate    float64
+} {
+	return []struct {
+		UpperBound float64
+		TaxRate    float64
+	}{
+		{150000, 0},
+		{500000, 0.1},
+		{1000000, 0.15},
+		{2000000, 0.2},
+		{math.MaxFloat64, 0.35},
+	}
 }
