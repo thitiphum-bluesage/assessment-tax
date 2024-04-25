@@ -1,15 +1,12 @@
-package tests
+package admin
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/thitiphum-bluesage/assessment-tax/applications/services/admin"
 	"github.com/thitiphum-bluesage/assessment-tax/domains"
 )
-
-// Mock repository
 type MockTaxDeductionConfigRepository struct {
 	mock.Mock
 }
@@ -35,7 +32,7 @@ func (m *MockTaxDeductionConfigRepository) UpdateKReceiptDeductionMax(amount flo
 // Testing the AdminService with mocks
 func TestAdminService_UpdatePersonalDeduction(t *testing.T) {
 	mockRepo := new(MockTaxDeductionConfigRepository)
-	adminService := admin.NewAdminService(mockRepo)
+	adminService := NewAdminService(mockRepo)
 
 	// Test updating with a valid amount
 	mockRepo.On("UpdatePersonalDeduction", 70000.0).Return(nil)
@@ -54,7 +51,7 @@ func TestAdminService_UpdatePersonalDeduction(t *testing.T) {
 
 func TestAdminService_UpdateKReceiptDeductionMax(t *testing.T) {
 	mockRepo := new(MockTaxDeductionConfigRepository)
-	adminService := admin.NewAdminService(mockRepo)
+	adminService := NewAdminService(mockRepo)
 
 	// Test updating within valid range
 	mockRepo.On("UpdateKReceiptDeductionMax", 50000.0).Return(nil)
