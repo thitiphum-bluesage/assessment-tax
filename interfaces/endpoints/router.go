@@ -18,7 +18,6 @@ func NewRouter(e *echo.Echo, taxControllerr *controllers.TaxController, adminCon
 	// Group for tax-related routes
 	taxGroup := e.Group("/tax")
 	taxGroup.POST("/calculations", taxControllerr.CalculateDetailedTax)
-	taxGroup.POST("/calculations/upload-csv", taxControllerr.CalculateCSVTax)
 
 	// Group for admin-related routes
 	adminGroup := e.Group("/admin")

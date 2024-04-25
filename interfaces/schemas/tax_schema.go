@@ -44,20 +44,3 @@ type DetailedTaxCalculationResponse struct {
 	Tax      float64    `json:"tax"`
 	TaxLevel []TaxLevel `json:"taxLevel"`
 }
-
-type CSVObjectFormat struct {
-	TotalIncome float64 `csv:"totalIncome"`
-	WHT         float64 `csv:"wht"`
-	Donation    float64 `csv:"donation"`
-	KReceipt    float64 `csv:"k-receipt"`
-}
-
-type CSVResponseMember struct {
-	TotalIncome float64 `json:"totalIncome"`
-	Tax         float64 `json:"tax,omitempty"`
-	TaxRefund   float64 `json:"taxRefund,omitempty"`
-}
-
-type CSVResponse struct {
-	Taxes []CSVResponseMember `json:"taxes"`
-}

@@ -153,50 +153,6 @@ func calculateProgressiveTaxWithDetails(income float64) ([]schemas.TaxLevel, flo
 	return detailResponse, tax
 }
 
-func (s *taxService) CalculateTaxFromCSV(records []schemas.CSVObjectFormat) (schemas.CSVResponse, error) {
-	config, err := s.taxRepo.GetConfig()
-	if err != nil {
-		return schemas.CSVResponse{}, err
-	}
-
-	var response schemas.CSVResponse
-
-	for _, record := range records {
-		totalIncome := record.TotalIncome
-		wht := record.WHT
-		donation := record.Donation
-		k_receipt := record.KReceipt
-
-		if donation > config.DonationDeductionMax {
-			donation = config.DonationDeductionMax
-		}
-		if k_receipt > config.KReceiptDeductionMax {
-			k_receipt = config.KReceiptDeductionMax
-		}
-
-		totalIncomeAfterDeduct := totalIncome - (donation + k_receipt + config.PersonalDeduction)
-
-		if totalIncomeAfterDeduct < 0 {
-			totalIncomeAfterDeduct = 0
-		}
-
-		tax := calculateProgressiveTax(totalIncomeAfterDeduct)
-		netTax := tax - wht
-		if netTax < 0 {
-			response.Taxes = append(response.Taxes, schemas.CSVResponseMember{
-				TotalIncome: totalIncome,
-				TaxRefund:   -netTax,
-			})
-		} else {
-			response.Taxes = append(response.Taxes, schemas.CSVResponseMember{
-				TotalIncome: totalIncome,
-				Tax:         netTax,
-			})
-		}
-	}
-	return response, nil
-}
-
 func getTaxBrackets() []struct {
 	UpperBound float64
 	TaxRate    float64
