@@ -8,16 +8,16 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	"github.com/thitiphum-bluesage/assessment-tax/applications/services"
+	"github.com/thitiphum-bluesage/assessment-tax/applications/services/tax"
 	"github.com/thitiphum-bluesage/assessment-tax/interfaces/schemas"
 	"github.com/thitiphum-bluesage/assessment-tax/utilities"
 )
 
 type TaxController struct {
-	taxService services.TaxServiceInterface
+	taxService tax.TaxServiceInterface
 }
 
-func NewTaxController(service services.TaxServiceInterface) *TaxController {
+func NewTaxController(service tax.TaxServiceInterface) *TaxController {
 	return &TaxController{
 		taxService: service,
 	}
