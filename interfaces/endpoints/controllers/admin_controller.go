@@ -4,16 +4,16 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/thitiphum-bluesage/assessment-tax/applications/services"
+	"github.com/thitiphum-bluesage/assessment-tax/applications/services/admin"
 	"github.com/thitiphum-bluesage/assessment-tax/interfaces/schemas"
 	"github.com/thitiphum-bluesage/assessment-tax/utilities"
 )
 
 type AdminController struct {
-	service services.AdminServiceInterface
+	service admin.AdminServiceInterface
 }
 
-func NewAdminController(service services.AdminServiceInterface) *AdminController {
+func NewAdminController(service admin.AdminServiceInterface) *AdminController {
 	return &AdminController{
 		service: service,
 	}
