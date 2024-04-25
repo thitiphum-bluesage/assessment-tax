@@ -67,3 +67,31 @@ func ValidateTaxCalculationRequest(req *schemas.TaxCalculationRequest) error {
 	}
 	return nil
 }
+
+func ValidateCSVTaxRecords(records []schemas.CSVObjectFormat) error {
+	var errs []string
+
+	for i, record := range records {
+		if record.TotalIncome < 0 {
+			errs = append(errs, fmt.Sprintf("Record %d: TotalIncome must be non-negative", i+1))
+		}
+		if record.WHT < 0 {
+			errs = append(errs, fmt.Sprintf("Record %d: WHT must be non-negative", i+1))
+		}
+		if record.Donation < 0 {
+			errs = append(errs, fmt.Sprintf("Record %d: Donation must be non-negative", i+1))
+		}
+		if record.KReceipt < 0 {
+			errs = append(errs, fmt.Sprintf("Record %d: KReceipt must be non-negative", i+1))
+		}
+		if record.WHT > record.TotalIncome {
+			errs = append(errs, fmt.Sprintf("Record %d: WHT cannot be greater than TotalIncome", i+1))
+		}
+	}
+
+	if len(errs) > 0 {
+		return fmt.Errorf("validation errors: %s", strings.Join(errs, "; "))
+	}
+
+	return nil
+}

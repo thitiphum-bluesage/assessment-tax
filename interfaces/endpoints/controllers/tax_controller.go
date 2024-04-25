@@ -138,6 +138,10 @@ func (tc *TaxController) CalculateCSVTax(c echo.Context) error {
 		taxRecords = append(taxRecords, taxRecord)
 	}
 
+	if err := utilities.ValidateCSVTaxRecords(taxRecords); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
 	response, err := tc.taxService.CalculateTaxFromCSV(taxRecords)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
