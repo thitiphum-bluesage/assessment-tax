@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/csv"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -23,6 +24,7 @@ func NewTaxController(service tax.TaxServiceInterface) *TaxController {
 	}
 }
 
+// used in story 1,2,3
 func (tc *TaxController) CalculateTax(c echo.Context) error {
 	var req schemas.TaxCalculationRequest
 	if err := c.Bind(&req); err != nil {
@@ -81,70 +83,85 @@ func (tc *TaxController) CalculateDetailedTax(c echo.Context) error {
 }
 
 func (tc *TaxController) CalculateCSVTax(c echo.Context) error {
-	fileHeader, err := c.FormFile("taxFile")
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Failed to get the file")
-	}
+    fileHeader, err := c.FormFile("taxFile")
+    if err != nil {
+        return echo.NewHTTPError(http.StatusBadRequest, "Failed to get the file")
+    }
 
-	file, err := fileHeader.Open()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to open the file")
-	}
-	defer file.Close()
+    file, err := fileHeader.Open()
+    if err != nil {
+        return echo.NewHTTPError(http.StatusInternalServerError, "Failed to open the file")
+    }
+    defer file.Close()
 
-	csvReader := csv.NewReader(file)
-	headers, err := csvReader.Read()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to read headers from CSV file")
-	}
+    csvReader := csv.NewReader(file)
+    headers, err := csvReader.Read()
+    if err != nil {
+        return echo.NewHTTPError(http.StatusInternalServerError, "Failed to read headers from CSV file")
+    }
 
-	columnIndex := make(map[string]int)
-	for i, header := range headers {
-		columnIndex[strings.ToLower(header)] = i
-	}
+    columnIndex := make(map[string]int)
+    for i, header := range headers {
+        columnIndex[strings.ToLower(header)] = i
+    }
 
-	// {
-	// 	"totalincome": 0,
-	// 	"wht": 1,
-	// 	"donation": 2,
-	// 	"kreceipt": 3
-	// }
+    // Validate expected columns
+    for key:= range columnIndex {
+        if key != "totalincome" && key != "wht" && key != "donation" && key != "k-receipt" {
+            return echo.NewHTTPError(http.StatusBadRequest, "Invalid CSV file")
+        }
+    }
 
-	var taxRecords []schemas.CSVObjectFormat
-	for {
-		record, err := csvReader.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to read record from CSV file")
-		}
+    var taxRecords []schemas.CSVObjectFormat
+    for {
+        record, err := csvReader.Read()
+        if err == io.EOF {
+            break
+        }
+        if err != nil {
+            return echo.NewHTTPError(http.StatusInternalServerError, "Failed to read record from CSV file")
+        }
 
-		var taxRecord schemas.CSVObjectFormat
-		if index, ok := columnIndex["totalincome"]; ok {
-			taxRecord.TotalIncome, _ = strconv.ParseFloat(record[index], 64)
-		}
-		if index, ok := columnIndex["wht"]; ok {
-			taxRecord.WHT, _ = strconv.ParseFloat(record[index], 64)
-		}
-		if index, ok := columnIndex["donation"]; ok {
-			taxRecord.Donation, _ = strconv.ParseFloat(record[index], 64)
-		}
-		// k-receipt will = 0 if not provided
-		if index, ok := columnIndex["k-receipt"]; ok {
-			taxRecord.KReceipt, _ = strconv.ParseFloat(record[index], 64)
-		}
+        var taxRecord schemas.CSVObjectFormat
+        for key, index := range columnIndex {
+            switch key {
+            case "totalincome":
+                if taxRecord.TotalIncome, err = parseAndValidateFloat(record[index]); err != nil {
+                    return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid CSV file: %v", err))
+                }
+            case "wht":
+                if taxRecord.WHT, err = parseAndValidateFloat(record[index]); err != nil {
+                    return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid CSV file: %v", err))
+                }
+            case "donation":
+                if taxRecord.Donation, err = parseAndValidateFloat(record[index]); err != nil {
+                    return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid CSV file: %v", err))
+                }
+            case "k-receipt":
+                if taxRecord.KReceipt, err = parseAndValidateFloat(record[index]); err != nil {
+                    return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid CSV file: %v", err))
+                }
+            }
+        }
 
-		taxRecords = append(taxRecords, taxRecord)
-	}
+        taxRecords = append(taxRecords, taxRecord)
+    }
 
-	if err := utilities.ValidateCSVTaxRecords(taxRecords); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
+    if err := utilities.ValidateCSVTaxRecords(taxRecords); err != nil {
+        return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+    }
 
-	response, err := tc.taxService.CalculateTaxFromCSV(taxRecords)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-	return c.JSON(http.StatusOK, response)
+    response, err := tc.taxService.CalculateTaxFromCSV(taxRecords)
+    if err != nil {
+        return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+    }
+    return c.JSON(http.StatusOK, response)
+}
+
+func parseAndValidateFloat(value string) (float64, error) {
+    floatValue, err := strconv.ParseFloat(value, 64)
+    if err != nil {
+        return 0, err
+    }
+    return floatValue, nil
 }

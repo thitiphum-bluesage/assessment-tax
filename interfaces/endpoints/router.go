@@ -9,7 +9,7 @@ import (
 	"github.com/thitiphum-bluesage/assessment-tax/interfaces/middleware"
 )
 
-func NewRouter(e *echo.Echo, taxControllerr *controllers.TaxController, adminController *controllers.AdminController, cfg *config.Config) {
+func Router(e *echo.Echo, taxControllerr *controllers.TaxController, adminController *controllers.AdminController, cfg *config.Config) {
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, Go Bootcamp!")

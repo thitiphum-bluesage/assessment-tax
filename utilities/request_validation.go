@@ -2,6 +2,7 @@ package utilities
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/thitiphum-bluesage/assessment-tax/interfaces/schemas"
@@ -69,29 +70,50 @@ func ValidateTaxCalculationRequest(req *schemas.TaxCalculationRequest) error {
 }
 
 func ValidateCSVTaxRecords(records []schemas.CSVObjectFormat) error {
-	var errs []string
+    var errs []string
 
-	for i, record := range records {
-		if record.TotalIncome < 0 {
-			errs = append(errs, fmt.Sprintf("Record %d: TotalIncome must be non-negative", i+1))
-		}
-		if record.WHT < 0 {
-			errs = append(errs, fmt.Sprintf("Record %d: WHT must be non-negative", i+1))
-		}
-		if record.Donation < 0 {
-			errs = append(errs, fmt.Sprintf("Record %d: Donation must be non-negative", i+1))
-		}
-		if record.KReceipt < 0 {
-			errs = append(errs, fmt.Sprintf("Record %d: KReceipt must be non-negative", i+1))
-		}
-		if record.WHT > record.TotalIncome {
-			errs = append(errs, fmt.Sprintf("Record %d: WHT cannot be greater than TotalIncome", i+1))
-		}
-	}
+    for i, record := range records {
+        if record.TotalIncome < 0 {
+            errs = append(errs, fmt.Sprintf("Record %d: TotalIncome must be non-negative", i+1))
+        }
+        if record.WHT < 0 {
+            errs = append(errs, fmt.Sprintf("Record %d: WHT must be non-negative", i+1))
+        }
+        if record.Donation < 0 {
+            errs = append(errs, fmt.Sprintf("Record %d: Donation must be non-negative", i+1))
+        }
+        if record.KReceipt < 0 {
+            errs = append(errs, fmt.Sprintf("Record %d: KReceipt must be non-negative", i+1))
+        }
+        if record.WHT > record.TotalIncome {
+            errs = append(errs, fmt.Sprintf("Record %d: WHT cannot be greater than TotalIncome", i+1))
+        }
 
-	if len(errs) > 0 {
-		return fmt.Errorf("validation errors: %s", strings.Join(errs, "; "))
-	}
+        // Add type validation
+        if !isValidFloat(record.TotalIncome) {
+            errs = append(errs, fmt.Sprintf("Record %d: TotalIncome must be a valid float", i+1))
+        }
+        if !isValidFloat(record.WHT) {
+            errs = append(errs, fmt.Sprintf("Record %d: WHT must be a valid float", i+1))
+        }
+        if !isValidFloat(record.Donation) {
+            errs = append(errs, fmt.Sprintf("Record %d: Donation must be a valid float", i+1))
+        }
+        if !isValidFloat(record.KReceipt) {
+            errs = append(errs, fmt.Sprintf("Record %d: KReceipt must be a valid float", i+1))
+        }
+    }
 
-	return nil
+    if len(errs) > 0 {
+        return fmt.Errorf("validation errors: %s", strings.Join(errs, "; "))
+    }
+
+    return nil
+}
+
+func isValidFloat(value float64) bool {
+    if math.IsNaN(value) || math.IsInf(value, 0) {
+        return false
+    }
+    return true
 }

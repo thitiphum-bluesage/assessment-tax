@@ -1,4 +1,4 @@
-package tests
+package repository
 
 import (
 	"testing"
@@ -6,7 +6,6 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 	"github.com/thitiphum-bluesage/assessment-tax/domains"
-	"github.com/thitiphum-bluesage/assessment-tax/infrastructure/repository"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -24,10 +23,9 @@ func setupMock() (*gorm.DB, sqlmock.Sqlmock, func()) {
 	})
 	gdb, err := gorm.Open(dialector, &gorm.Config{})
 	if err != nil {
-		db.Close() // Ensure the sqlmock database connection is closed on error
+		db.Close()
 		panic("failed to open gorm database: " + err.Error())
-	}
-
+	} 
 	cleanup := func() {
 		db.Close()
 	}
@@ -39,7 +37,7 @@ func TestGetConfig(t *testing.T) {
 	gdb, mock, cleanup := setupMock()
 	defer cleanup()
 
-	taxRepo := repository.NewTaxDeductionConfigRepository(gdb)
+	taxRepo := NewTaxDeductionConfigRepository(gdb)
 
 	expectedConfig := domains.TaxDeductionConfig{
 		ConfigName:           "MainConfig",
@@ -51,23 +49,28 @@ func TestGetConfig(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"config_name", "personal_deduction", "k_receipt_deduction_max", "donation_deduction_max"}).
 		AddRow(expectedConfig.ConfigName, expectedConfig.PersonalDeduction, expectedConfig.KReceiptDeductionMax, expectedConfig.DonationDeductionMax)
 
-	mock.ExpectQuery(`SELECT \* FROM "tax_deduction_configs"`).WillReturnRows(rows)
+	mock.ExpectQuery(`SELECT \* FROM "tax_deduction_configs" WHERE config_name = \$1 ORDER BY "tax_deduction_configs"\."config_name" LIMIT \$2`).
+		WithArgs("MainConfig", 1).
+		WillReturnRows(rows)
 
 	config, err := taxRepo.GetConfig()
 	assert.NoError(t, err)
 	assert.NotNil(t, config)
 	assert.Equal(t, expectedConfig, *config)
+
+	assert.NoError(t, mock.ExpectationsWereMet())
 }
+
 
 func TestUpdatePersonalDeduction(t *testing.T) {
 	gdb, mock, cleanup := setupMock()
 	defer cleanup()
 
-	taxRepo := repository.NewTaxDeductionConfigRepository(gdb)
+	taxRepo := NewTaxDeductionConfigRepository(gdb)
 
 	mock.ExpectBegin()
-	mock.ExpectExec(`UPDATE "tax_deduction_configs"`).
-		WithArgs(float64(70000), "MainConfig").
+	mock.ExpectExec(`UPDATE "tax_deduction_configs" SET "personal_deduction"=\$1 WHERE config_name = \$2`).
+		WithArgs(70000.0, "MainConfig").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
@@ -75,8 +78,8 @@ func TestUpdatePersonalDeduction(t *testing.T) {
 	assert.NoError(t, err)
 
 	mock.ExpectBegin()
-	mock.ExpectExec(`UPDATE "tax_deduction_configs"`).
-		WithArgs(float64(70000), "MainConfig").
+	mock.ExpectExec(`UPDATE "tax_deduction_configs" SET "personal_deduction"=\$1 WHERE config_name = \$2`).
+		WithArgs(70000.0, "MainConfig").
 		WillReturnError(gorm.ErrInvalidData)
 	mock.ExpectRollback()
 
@@ -90,11 +93,11 @@ func TestUpdateKReceiptDeductionMax(t *testing.T) {
 	gdb, mock, cleanup := setupMock()
 	defer cleanup()
 
-	taxRepo := repository.NewTaxDeductionConfigRepository(gdb)
+	taxRepo := NewTaxDeductionConfigRepository(gdb)
 
 	mock.ExpectBegin()
-	mock.ExpectExec(`UPDATE "tax_deduction_configs"`).
-		WithArgs(float64(45000), "MainConfig").
+	mock.ExpectExec(`UPDATE "tax_deduction_configs" SET "k_receipt_deduction_max"=\$1 WHERE config_name = \$2`).
+		WithArgs(45000.0, "MainConfig").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
@@ -102,8 +105,8 @@ func TestUpdateKReceiptDeductionMax(t *testing.T) {
 	assert.NoError(t, err)
 
 	mock.ExpectBegin()
-	mock.ExpectExec(`UPDATE "tax_deduction_configs"`).
-		WithArgs(float64(45000), "MainConfig").
+	mock.ExpectExec(`UPDATE "tax_deduction_configs" SET "k_receipt_deduction_max"=\$1 WHERE config_name = \$2`).
+		WithArgs(45000.0, "MainConfig").
 		WillReturnError(gorm.ErrInvalidData)
 	mock.ExpectRollback()
 
@@ -112,3 +115,5 @@ func TestUpdateKReceiptDeductionMax(t *testing.T) {
 
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
+
+
