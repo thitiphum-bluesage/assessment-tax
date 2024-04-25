@@ -43,7 +43,7 @@ func main() {
 	taxController := controllers.NewTaxController(taxService)
 
 	// Setup the router with routes
-	endpoints.NewRouter(e, taxController, adminController, cfg)
+	endpoints.Router(e, taxController, adminController, cfg)
 
 	port := cfg.Port
 	if port == "" {
