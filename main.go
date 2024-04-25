@@ -11,8 +11,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/thitiphum-bluesage/assessment-tax/applications/services/admin"
-	"github.com/thitiphum-bluesage/assessment-tax/applications/services/tax"
+	"github.com/thitiphum-bluesage/assessment-tax/applications/services"
 	"github.com/thitiphum-bluesage/assessment-tax/config"
 	"github.com/thitiphum-bluesage/assessment-tax/infrastructure"
 	"github.com/thitiphum-bluesage/assessment-tax/infrastructure/repository"
@@ -35,8 +34,8 @@ func main() {
 	taxRepo := repository.NewTaxDeductionConfigRepository(db)
 
 	// Service layer
-	adminService := admin.NewAdminService(taxRepo)
-	taxService := tax.NewTaxService(taxRepo)
+	adminService := services.NewAdminService(taxRepo)
+	taxService := services.NewTaxService(taxRepo)
 
 	// Controller layer
 	adminController := controllers.NewAdminController(adminService)

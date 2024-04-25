@@ -1,4 +1,4 @@
-package tax
+package services
 
 import (
 	"github.com/thitiphum-bluesage/assessment-tax/interfaces/schemas"
