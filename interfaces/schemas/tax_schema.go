@@ -32,7 +32,8 @@ type TaxCalculationResponse struct {
 }
 
 type TaxCalculationRefundResponse struct {
-	TaxRefund float64 `json:"taxRefund"`
+	TaxRefund float64    `json:"taxRefund"`
+	TaxLevel  []TaxLevel `json:"taxLevel"`
 }
 
 type TaxLevel struct {
