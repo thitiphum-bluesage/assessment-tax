@@ -19,6 +19,18 @@ func NewAdminController(service admin.AdminServiceInterface) *AdminController {
 	}
 }
 
+// UpdatePersonalDeduction updates the personal tax deduction amount
+// @Summary Update personal deduction
+// @Description Update the personal deduction for a tax payer
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param request body schemas.UpdatePersonalDeductionRequest true "Update Personal Deduction Request"
+// @Success 200 {object} schemas.UpdatePersonalDeductionResponse
+// @Failure 400 {object} schemas.ErrorResponse "Invalid input data"
+// @Failure 500 {object} schemas.ErrorResponse "Internal Server Error"
+// @Security basicAuth
+// @Router /admin/deductions/personal [post]
 func (ac *AdminController) UpdatePersonalDeduction(c echo.Context) error {
 	var req schemas.UpdatePersonalDeductionRequest
 	if err := c.Bind(&req); err != nil {
@@ -38,6 +50,18 @@ func (ac *AdminController) UpdatePersonalDeduction(c echo.Context) error {
 	})
 }
 
+// UpdateKReceiptDeduction updates the K receipt deduction amount
+// @Summary Update K receipt deduction
+// @Description Update the K receipt deduction for a tax payer
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param request body schemas.UpdateKReceiptRequest true "Update K Receipt Deduction Request"
+// @Success 200 {object} schemas.UpdateKReceiptResponse
+// @Failure 400 {object} schemas.ErrorResponse "Invalid input data"
+// @Failure 500 {object} schemas.ErrorResponse "Internal Server Error"
+// @Security basicAuth
+// @Router /admin/deductions/k-receipt [post]
 func (ac *AdminController) UpdateKReceiptDeduction(c echo.Context) error {
 	var req schemas.UpdateKReceiptRequest
 	if err := c.Bind(&req); err != nil {

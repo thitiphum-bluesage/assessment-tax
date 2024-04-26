@@ -1,19 +1,19 @@
 package schemas
 
 type UpdatePersonalDeductionRequest struct {
-	Amount *float64 `json:"amount"`
+	Amount *float64 `json:"amount" example:"60000.0"`
 }
 
 type UpdatePersonalDeductionResponse struct {
-	PersonalDeduction float64 `json:"personalDeduction"`
+	PersonalDeduction float64 `json:"personalDeduction" example:"60000"`
 }
 
 type UpdateKReceiptRequest struct {
-	Amount *float64 `json:"amount" `
+	Amount *float64 `json:"amount" example:"50000.0"`
 }
 
 type UpdateKReceiptResponse struct {
-	KReceipt float64 `json:"kReceipt"`
+	KReceipt float64 `json:"kReceipt" example:"50000"`
 }
 
 type Allowance struct {
@@ -60,4 +60,8 @@ type CSVResponseMember struct {
 
 type CSVResponse struct {
 	Taxes []CSVResponseMember `json:"taxes"`
+}
+
+type ErrorResponse struct {
+	Message string `json:"message"`
 }

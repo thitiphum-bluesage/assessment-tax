@@ -53,6 +53,17 @@ func (tc *TaxController) CalculateTax(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
+// CalculateDetailedTax calculates the detailed tax amounts based on income, withholdings, and allowances
+// @Summary Calculate detailed tax
+// @Description Calculates taxes including breakdowns by tax level and potential refunds.
+// @Tags tax
+// @Accept json
+// @Produce json
+// @Param request body schemas.TaxCalculationRequest true "Tax Calculation Request"
+// @Success 200 {object} schemas.DetailedTaxCalculationResponse "Detailed breakdown of tax calculations"
+// @Failure 400 {object} schemas.ErrorResponse "Invalid input data"
+// @Failure 500 {object} schemas.ErrorResponse "Internal Server Error"
+// @Router /tax/calculations [post]
 func (tc *TaxController) CalculateDetailedTax(c echo.Context) error {
 	var req schemas.TaxCalculationRequest
 	if err := c.Bind(&req); err != nil {
@@ -82,6 +93,17 @@ func (tc *TaxController) CalculateDetailedTax(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
+// CalculateCSVTax calculates taxes from a CSV file upload containing multiple taxpayer records.
+// @Summary Calculate taxes from CSV
+// @Description Accepts a file upload (CSV format) with tax data, processes each record, and returns tax calculations.
+// @Tags tax
+// @Accept multipart/form-data
+// @Produce json
+// @Param taxFile formData file true "CSV file containing tax data"
+// @Success 200 {object} schemas.CSVResponse "Tax calculations for all records in the uploaded CSV"
+// @Failure 400 {object} schemas.ErrorResponse "Invalid input data or CSV format errors"
+// @Failure 500 {object} schemas.ErrorResponse "Internal Server Error"
+// @Router /tax/calculations/upload-csv [post]
 func (tc *TaxController) CalculateCSVTax(c echo.Context) error {
     fileHeader, err := c.FormFile("taxFile")
     if err != nil {
