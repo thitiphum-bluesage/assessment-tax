@@ -1,19 +1,5 @@
 version: "3.8"
 services:
-  app:
-    build: .
-    ports:
-      - "${PORT}:${PORT}"
-    environment:
-      - PORT
-      - DATABASE_URL
-      - ADMIN_USERNAME
-      - ADMIN_PASSWORD
-    depends_on:
-      - postgres
-    networks:
-      - mynetwork
-
   postgres:
     image: postgres:latest
     environment:
@@ -25,12 +11,12 @@ services:
     volumes:
       - ou_ktax:/var/lib/postgresql/data
     networks:
-      - mynetwork
-
-networks:
-  mynetwork:
-    driver: bridge
+      - moon_sword
 
 volumes:
   ou_ktax:
     driver: local
+
+networks:
+  moon_sword:
+    external: true
