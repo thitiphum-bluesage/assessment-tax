@@ -82,6 +82,7 @@ func (tc *TaxController) CalculateDetailedTax(c echo.Context) error {
 	if taxRefund > 0 {
 		response := schemas.TaxCalculationRefundResponse{
 			TaxRefund: taxRefund,
+            TaxLevel: taxLevel,
 		}
 		return c.JSON(http.StatusOK, response)
 	}
