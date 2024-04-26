@@ -10,7 +10,13 @@ services:
       - "2000:5432"
     volumes:
       - ou_ktax:/var/lib/postgresql/data
+    networks:
+      - moon_sword
 
 volumes:
   ou_ktax:
     driver: local
+
+networks:
+  moon_sword:
+    external: true
