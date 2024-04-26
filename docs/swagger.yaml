@@ -1,0 +1,221 @@
+definitions:
+  schemas.Allowance:
+    properties:
+      allowanceType:
+        type: string
+      amount:
+        type: number
+    type: object
+  schemas.CSVResponse:
+    properties:
+      taxes:
+        items:
+          $ref: '#/definitions/schemas.CSVResponseMember'
+        type: array
+    type: object
+  schemas.CSVResponseMember:
+    properties:
+      tax:
+        type: number
+      taxRefund:
+        type: number
+      totalIncome:
+        type: number
+    type: object
+  schemas.DetailedTaxCalculationResponse:
+    properties:
+      tax:
+        type: number
+      taxLevel:
+        items:
+          $ref: '#/definitions/schemas.TaxLevel'
+        type: array
+    type: object
+  schemas.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  schemas.TaxCalculationRequest:
+    properties:
+      allowances:
+        items:
+          $ref: '#/definitions/schemas.Allowance'
+        type: array
+      totalIncome:
+        type: number
+      wht:
+        type: number
+    type: object
+  schemas.TaxLevel:
+    properties:
+      level:
+        type: string
+      tax:
+        type: number
+    type: object
+  schemas.UpdateKReceiptRequest:
+    properties:
+      amount:
+        example: 50000
+        type: number
+    type: object
+  schemas.UpdateKReceiptResponse:
+    properties:
+      kReceipt:
+        example: 50000
+        type: number
+    type: object
+  schemas.UpdatePersonalDeductionRequest:
+    properties:
+      amount:
+        example: 60000
+        type: number
+    type: object
+  schemas.UpdatePersonalDeductionResponse:
+    properties:
+      personalDeduction:
+        example: 60000
+        type: number
+    type: object
+info:
+  contact:
+    email: chitiphum@gmail.com
+    name: Thitiphum Chaikarnjanakit
+  description: KTax app developed by Thitiphum Chaikarnjanakit as part of the Go KBank
+    Technology Group (KBTG) Bootcamp.
+  title: KTax API Documentation
+  version: "1.0"
+paths:
+  /admin/deductions/k-receipt:
+    post:
+      consumes:
+      - application/json
+      description: Update the K receipt deduction for a tax payer
+      parameters:
+      - description: Update K Receipt Deduction Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.UpdateKReceiptRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.UpdateKReceiptResponse'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+      security:
+      - basicAuth: []
+      summary: Update K receipt deduction
+      tags:
+      - admin
+  /admin/deductions/personal:
+    post:
+      consumes:
+      - application/json
+      description: Update the personal deduction for a tax payer
+      parameters:
+      - description: Update Personal Deduction Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.UpdatePersonalDeductionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.UpdatePersonalDeductionResponse'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+      security:
+      - basicAuth: []
+      summary: Update personal deduction
+      tags:
+      - admin
+  /tax/calculations:
+    post:
+      consumes:
+      - application/json
+      description: Calculates taxes including breakdowns by tax level and potential
+        refunds.
+      parameters:
+      - description: Tax Calculation Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.TaxCalculationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Detailed breakdown of tax calculations
+          schema:
+            $ref: '#/definitions/schemas.DetailedTaxCalculationResponse'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+      summary: Calculate detailed tax
+      tags:
+      - tax
+  /tax/calculations/upload-csv:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Accepts a file upload (CSV format) with tax data, processes each
+        record, and returns tax calculations.
+      parameters:
+      - description: CSV file containing tax data
+        in: formData
+        name: taxFile
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tax calculations for all records in the uploaded CSV
+          schema:
+            $ref: '#/definitions/schemas.CSVResponse'
+        "400":
+          description: Invalid input data or CSV format errors
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+      summary: Calculate taxes from CSV
+      tags:
+      - tax
+schemes:
+- http
+- https
+securityDefinitions:
+  basicAuth:
+    type: basic
+swagger: "2.0"

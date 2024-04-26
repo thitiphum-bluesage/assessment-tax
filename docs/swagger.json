@@ -1,0 +1,339 @@
+{
+    "schemes": [
+        "http",
+        "https"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "KTax app developed by Thitiphum Chaikarnjanakit as part of the Go KBank Technology Group (KBTG) Bootcamp.",
+        "title": "KTax API Documentation",
+        "contact": {
+            "name": "Thitiphum Chaikarnjanakit",
+            "email": "chitiphum@gmail.com"
+        },
+        "version": "1.0"
+    },
+    "paths": {
+        "/admin/deductions/k-receipt": {
+            "post": {
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "description": "Update the K receipt deduction for a tax payer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Update K receipt deduction",
+                "parameters": [
+                    {
+                        "description": "Update K Receipt Deduction Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.UpdateKReceiptRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.UpdateKReceiptResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input data",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/deductions/personal": {
+            "post": {
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ],
+                "description": "Update the personal deduction for a tax payer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Update personal deduction",
+                "parameters": [
+                    {
+                        "description": "Update Personal Deduction Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.UpdatePersonalDeductionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.UpdatePersonalDeductionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input data",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/tax/calculations": {
+            "post": {
+                "description": "Calculates taxes including breakdowns by tax level and potential refunds.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tax"
+                ],
+                "summary": "Calculate detailed tax",
+                "parameters": [
+                    {
+                        "description": "Tax Calculation Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.TaxCalculationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detailed breakdown of tax calculations",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.DetailedTaxCalculationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input data",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/tax/calculations/upload-csv": {
+            "post": {
+                "description": "Accepts a file upload (CSV format) with tax data, processes each record, and returns tax calculations.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tax"
+                ],
+                "summary": "Calculate taxes from CSV",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "CSV file containing tax data",
+                        "name": "taxFile",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tax calculations for all records in the uploaded CSV",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.CSVResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input data or CSV format errors",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "schemas.Allowance": {
+            "type": "object",
+            "properties": {
+                "allowanceType": {
+                    "type": "string"
+                },
+                "amount": {
+                    "type": "number"
+                }
+            }
+        },
+        "schemas.CSVResponse": {
+            "type": "object",
+            "properties": {
+                "taxes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schemas.CSVResponseMember"
+                    }
+                }
+            }
+        },
+        "schemas.CSVResponseMember": {
+            "type": "object",
+            "properties": {
+                "tax": {
+                    "type": "number"
+                },
+                "taxRefund": {
+                    "type": "number"
+                },
+                "totalIncome": {
+                    "type": "number"
+                }
+            }
+        },
+        "schemas.DetailedTaxCalculationResponse": {
+            "type": "object",
+            "properties": {
+                "tax": {
+                    "type": "number"
+                },
+                "taxLevel": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schemas.TaxLevel"
+                    }
+                }
+            }
+        },
+        "schemas.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas.TaxCalculationRequest": {
+            "type": "object",
+            "properties": {
+                "allowances": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schemas.Allowance"
+                    }
+                },
+                "totalIncome": {
+                    "type": "number"
+                },
+                "wht": {
+                    "type": "number"
+                }
+            }
+        },
+        "schemas.TaxLevel": {
+            "type": "object",
+            "properties": {
+                "level": {
+                    "type": "string"
+                },
+                "tax": {
+                    "type": "number"
+                }
+            }
+        },
+        "schemas.UpdateKReceiptRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number",
+                    "example": 50000
+                }
+            }
+        },
+        "schemas.UpdateKReceiptResponse": {
+            "type": "object",
+            "properties": {
+                "kReceipt": {
+                    "type": "number",
+                    "example": 50000
+                }
+            }
+        },
+        "schemas.UpdatePersonalDeductionRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number",
+                    "example": 60000
+                }
+            }
+        },
+        "schemas.UpdatePersonalDeductionResponse": {
+            "type": "object",
+            "properties": {
+                "personalDeduction": {
+                    "type": "number",
+                    "example": 60000
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "basicAuth": {
+            "type": "basic"
+        }
+    }
+}

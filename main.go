@@ -14,12 +14,22 @@ import (
 	"github.com/thitiphum-bluesage/assessment-tax/applications/services/admin"
 	"github.com/thitiphum-bluesage/assessment-tax/applications/services/tax"
 	"github.com/thitiphum-bluesage/assessment-tax/config"
+	_ "github.com/thitiphum-bluesage/assessment-tax/docs"
 	"github.com/thitiphum-bluesage/assessment-tax/infrastructure"
 	"github.com/thitiphum-bluesage/assessment-tax/infrastructure/repository"
 	"github.com/thitiphum-bluesage/assessment-tax/interfaces/endpoints"
 	"github.com/thitiphum-bluesage/assessment-tax/interfaces/endpoints/controllers"
 )
 
+// @title KTax API Documentation
+// @description KTax app developed by Thitiphum Chaikarnjanakit as part of the Go KBank Technology Group (KBTG) Bootcamp.
+// @version 1.0
+// @schemes http https
+// @securityDefinitions.basic basicAuth
+// @in header
+// @name Authorization
+// @contact.name Thitiphum Chaikarnjanakit
+// @contact.email chitiphum@gmail.com
 func main() {
 
 	// Load configuration
