@@ -12,7 +12,7 @@ FROM alpine:latest
 
 COPY --from=builder /go/src/app/main /main
 
-ENV DATABASE_URL=postgres://godou:1111@postgres:5432/ktaxes?sslmode=disable
+ENV DATABASE_URL=postgres://godou:1111@localhost:2000/ktaxes?sslmode=disable
 ENV PORT=8080
 ENV ADMIN_USERNAME=adminTax
 ENV ADMIN_PASSWORD=admin!
