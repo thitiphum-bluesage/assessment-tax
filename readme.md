@@ -385,6 +385,10 @@ If the authentication credentials are incorrect or not provided, the response wi
 
 Allows admin users to configure the k-receipt (Shop to Reduce Tax) deduction limits. This endpoint requires basic authentication with admin credentials to ensure only authorized users can make adjustments.
 
+#### Authentication
+
+To access this endpoint, you must provide basic authentication credentials:
+
 - **Username**: `adminTax`
 - **Password**: `admin!`
 
