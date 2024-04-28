@@ -128,6 +128,18 @@ func (tc *TaxController) CalculateCSVTax(c echo.Context) error {
         columnIndex[strings.ToLower(header)] = i
     }
 
+    hasTotalIncome := false
+    for i, header := range headers {
+        normalizedHeader := strings.ToLower(header)
+        columnIndex[normalizedHeader] = i
+        if normalizedHeader == "totalincome" {
+            hasTotalIncome = true
+        }
+    }
+    if !hasTotalIncome {
+        return echo.NewHTTPError(http.StatusBadRequest, "CSV file does not contain 'totalincome' header")
+    }
+
     // Validate expected columns
     for key:= range columnIndex {
         if key != "totalincome" && key != "wht" && key != "donation" && key != "k-receipt" {
