@@ -104,11 +104,11 @@ Upon initial setup, the K-Tax Application is configured with default deduction l
 
 These values are the starting points for tax calculations. The personal and k-receipt deduction limits can be adjusted by authorized admin users as needed. The donation deduction limit is fixed and cannot be changed.
 
-### How to Adjust Deduction Limits
+### How to Adjust Deduction Configuration
 
 Admin users can update the settings for personal and k-receipt deductions by authenticating and sending requests to the respective admin endpoints. Here are the endpoints available for configuration adjustments:
 
-- **POST /admin/deductions/personal**: To update the personal deduction limit.
+- **POST /admin/deductions/personal**: To update the personal deduction.
 - **POST /admin/deductions/k-receipt**: To update the k-receipt deduction limit.
 
 For more details on how to authenticate and modify these settings, refer to the descriptions provided under each relevant API endpoint.
