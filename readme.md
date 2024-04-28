@@ -4,6 +4,16 @@ K-Tax is a backend API service designed to calculate personal income tax based o
 
 This project is developed as part of the Go KBTG Bootcamp, which aims to enhance skills in Go programming and build practical applications.
 
+## Progressive Tax Bracket Calculations
+
+Tax is calculated based on the following progressive income brackets:
+
+- Income from 0 - 150,000: Exempt from tax
+- Income from 150,001 - 500,000: Tax rate of 10%
+- Income from 500,001 - 1,000,000: Tax rate of 15%
+- Income from 1,000,001 - 2,000,000: Tax rate of 20%
+- Income over 2,000,000: Tax rate of 35%
+
 ## Features
 
 - Calculate personal income tax based on the provided `total income` and deductions
@@ -160,6 +170,43 @@ Calculate tax with no refund:
 }
 ```
 
+<details>
+<summary>Calculation Logic</summary>
+
+**Initial Total Income:** 750,000
+
+**Allowances:**
+
+- **K-receipt:** 70,000 (max allowed 50,000)
+- **Donation:** 50,000 (max allowed 10,0000)
+- **Personal Deduction:** 60,000 (standard for all)
+
+**Taxable Income Calculation:**
+
+- 750,000 (Total Income) - 50,000 (K-receipt) - 50,000 (Donation) - 60,000 (Personal Deduction) = 590,000
+
+**Tax Calculation:**
+
+- **First 150,000:** Tax-Free
+- **Next 350,000:** 10% = 35,000
+- **Remaining 90,000:** 15% = 13,500
+- **Total Tax Due:** 35,000 + 13,500 = 48,500
+
+| Tax Level           | Tax    |
+| ------------------- | ------ |
+| 0-150,000           | 0      |
+| 150,001-500,000     | 35,000 |
+| 500,001-1,000,000   | 13,500 |
+| 1,000,001-2,000,000 | 0      |
+| 2,000,001 ขึ้นไป    | 0      |
+
+**Withholding Tax and Final Tax:**
+
+- **Tax Due:** 48,500
+- **Less:** Withholding Tax (WHT) of 20,000
+- **Net Tax Payable:** 48,500 - 20,000 = 28,500
+</details>
+
 #### Request Example for refund response
 
 ```json
@@ -208,6 +255,43 @@ Calculate tax with no refund:
   ]
 }
 ```
+
+<details>
+<summary>Calculation Logic</summary>
+
+**Initial Total Income:** 750,000
+
+**Allowances:**
+
+- **K-receipt:** 70,000 (max allowed 50,000)
+- **Donation:** 50,000 (max allowed 10,0000)
+- **Personal Deduction:** 60,000 (standard for all)
+
+**Taxable Income Calculation:**
+
+- 750,000 (Total Income) - 50,000 (K-receipt) - 50,000 (Donation) - 60,000 (Personal Deduction) = 590,000
+
+**Tax Calculation:**
+
+- **First 150,000:** Tax-Free
+- **Next 350,000:** 10% = 35,000
+- **Remaining 90,000:** 15% = 13,500
+- **Total Tax Due:** 35,000 + 13,500 = 48,500
+
+| Tax Level           | Tax    |
+| ------------------- | ------ |
+| 0-150,000           | 0      |
+| 150,001-500,000     | 35,000 |
+| 500,001-1,000,000   | 13,500 |
+| 1,000,001-2,000,000 | 0      |
+| 2,000,001 ขึ้นไป    | 0      |
+
+**Withholding Tax and Final Tax:**
+
+- **Tax Due:** 48,500
+- **Less:** Withholding Tax (WHT) of 50,000
+- **Net Tax Payable:** 48,500 - 50,000 = -1,500
+</details>
 
 ### POST /tax/calculations/upload-csv
 
